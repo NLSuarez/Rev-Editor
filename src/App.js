@@ -1,28 +1,24 @@
 import React, { Component } from "react";
-import marked from "marked";
+import BBCode from '@bbob/react/es/Component';
+import reactPreset from '@bbob/preset-react/es';
 import "./App.scss";
-
-marked.setOptions({
-  breaks: true,
-  sanitize: true
-});
 
 export default class CreatePost extends Component {
   constructor(props) {
     super(props);
 
-    const placeholderText = `# Revaliir Prototype
+    /*const placeholderText = `# Revaliir Prototype
 ![Revaliir Welcome Banner](https://revaliir.net/media/uploads/2018/06/01/welcomenew1y.png)
 
 >Be Daring
 >[Home](https://revaliir.net/)
-## For the eventual conversion from bbcode to Markdown
+## For the eventual conversion from bbcode to BBCode
 We originally used _bbcode_ styles like this to format our user's posts:
 \`\`\`
 [b][u]This is a bolded and underlined title[/b][/u]
 \`\`\`
 
-Now we will use **markdown** styles like so:
+Now we will use **BBCode** styles like so:
 \`\`\`
 __**This is a bolded and underlined title**__
 \`\`\`
@@ -31,24 +27,31 @@ Provided the devs don't run first considering we need to:
 1. Implement all the buttons for this.
 2. Protect against \`\`\`XSS\`\`\` attacks.
 3. Implement backwards compatibility for bbcode so old posts still display correctly.
-`;
+`;*/
+    const placeholderText = `
+    [h1]Revaliir Prototype[/h1]
+    [img]https://revaliir.net/media/uploads/2018/06/01/welcomenew1y.png[/img]
+    [url=https://revaliir.net/]Home[/url]
+    `
 
     this.state = {
-      markdown: placeholderText,
-      generatedHTML: this.createHTML(placeholderText)
+      BBCode: placeholderText,
+      generatedHTML: this.createHTML(placeholderText),
+      pastSelections: {}, //Only populate if a person has used the buttons to add in something.//
     };
   }
 
-  createHTML = markdown => {
-    let createdHTML = marked(markdown);
+  /* createHTML = BBCode => {
+    //let createdHTML = marked(BBCode);
+    let createdHTML = BBCode;
     return { __html: createdHTML };
-  };
+  }; */
 
-  handleTyping = markdown => {
-    let createdHTML = this.createHTML(markdown);
+  handleTyping = BBCode => {
+    let createdHTML = this.createHTML(BBCode);
     this.setState(
       Object.assign({}, this.state, {
-        markdown: markdown,
+        BBCode: BBCode,
         generatedHTML: createdHTML
       })
     );
@@ -57,8 +60,8 @@ Provided the devs don't run first considering we need to:
   render() {
     return (
       <div className="container">
-        <MarkdownEditor
-          text={this.state.markdown}
+        <BBCodeEditor
+          text={this.state.BBCode}
           handleTyping={this.handleTyping}
         />
         <Preview text={this.state.generatedHTML} />
@@ -67,59 +70,86 @@ Provided the devs don't run first considering we need to:
   }
 }
 
-class MarkdownEditor extends Component {
-  render() {
-    return (
-        <div className="row text-center">
-          <TextboxToolbar />
-          <Textbox
-            text={this.props.text}
-            handleTyping={this.props.handleTyping}
-          />
-        </div>
-    );
+class BBCodeEditor extends Component {
+  
+  constructor(props) {
+    super(props);
+    this.textBox = React.createRef();
   }
-}
 
-class TextboxToolbar extends Component {
-  render() {
-    return (
-      <div>
-        <h1>Here will be the toolbar</h1>
-      </div>
-    );
-  }
-}
-
-class Textbox extends Component {
   handleTyping = event => {
     this.props.handleTyping(event.target.value);
   };
 
+  handleToolbarClick = event => {
+    this.handleTagAddition(event.target.value);
+  }
+
+  handleTagAddition = tag => {
+    let startSelection = this.textBox.current.selectionStart;
+    let endSelection = this.textBox.current.selectionEnd;
+    let allText = this.props.text;
+    let selection = allText.substring(startSelection, endSelection);
+    let newText = "";
+    switch(tag){
+      //Note figure out how to undo these after they are added.
+      //Idea: Keep a state history of changes made via the buttons and undo them based upon metadata
+      case "B":
+        newText = allText.substring(0, startSelection) + "[b]" + selection + "[/b]" + allText.substring(endSelection, allText.length);
+        break;
+      case "I":
+        newText = allText.substring(0, startSelection) + "[i]" + selection + "[/i]" + allText.substring(endSelection, allText.length);
+        break;
+      case "U":
+        newText = allText.substring(0, startSelection) + "[u]" + selection + "[/u]" + allText.substring(endSelection, allText.length);
+        break;
+      case "S":
+        newText = allText.substring(0, startSelection) + "[s]" + selection + "[/s]" + allText.substring(endSelection, allText.length);
+        break;
+      case "SIZE":
+        newText = allText.substring(0, startSelection) + "[size=8]" + selection + "[/size]" + allText.substring(endSelection, allText.length);
+        break;
+      default:
+        break;
+    }
+    this.props.handleTyping(newText);    
+  }
+
   render() {
     return (
-      <div className="writingArea">
-        <textarea
-          id="editor"
-          rows="5"
-          cols="100"
-          value={this.props.text}
-          onChange={this.handleTyping}
-        />
+      <div className="row text-center">
+        <div>
+          <h1>Here will be the toolbar</h1>
+          <button onClick={this.handleToolbarClick} value="B">B</button>
+        </div>
+        <div className="writingArea">
+          <textarea
+            id="editor"
+            ref={this.textBox}
+            rows="5"
+            cols="100"
+            value={this.props.text}
+            onChange={this.handleTyping}
+          />
+        </div>
       </div>
     );
   }
 }
 
-//Preview area for the resultant html that has been sanitized from the markdown (This will eventually be hidden)
+//Preview area for the resultant html that has been sanitized from the BBCode (This will eventually be hidden)
 class Preview extends Component {
   render() {
     return (
-      <div
-        id="preview"
-        className="previewArea row text-center"
-        dangerouslySetInnerHTML={this.props.text}
-      />
+      
+      <BBCode plugins={[reactPreset()]}>
+        {/*<div
+          id="preview"
+          className="previewArea row text-center"
+          dangerouslySetInnerHTML={this.props.text}
+        />*/}
+        {this.props.text}
+      </BBCode>
     );
   }
 }

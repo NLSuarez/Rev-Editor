@@ -1,17 +1,11 @@
 # Main Goal
-Create a basic text editor that allows users to type markdown without actually having to know markdown.
-## Things that are not in markdown naturally that I will have to parse from bbcode
-Color for text.
-Size for text.
-Alignment.
-
-These will require us to parse the text twice or find a way to combine marked + bbcode parsing. (This will likely be the end result, as I don't want html at all.)
-
-Look into:
-https://github.com/JimLiu/bbcode-to-react
+Create a basic text editor that allows users to type bbcode that will then be parsed for a preview tab.
+## BBcode parser libraries that I'm eyeing
+~~ https://github.com/JimLiu/bbcode-to-react ~~
 https://github.com/JiLiZART/bbob (seems very promising)
 
 ## Buttons for the Toolbar
+### Mandatory
 1. Write
 2. Preview
 3. Header
@@ -26,5 +20,11 @@ https://github.com/JiLiZART/bbob (seems very promising)
 12. Image
 13. UL
 14. OL
-15. Tasks
-16. Align
+15. Align
+
+### Eventual
+1. Undo
+2. Redo
+
+##Functionality Plugins to Look For
+Color Wheel (Look at react-color)
