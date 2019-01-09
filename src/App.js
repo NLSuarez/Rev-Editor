@@ -1,58 +1,30 @@
 import React, { Component } from "react";
-import BBCode from '@bbob/react/es/Component';
-import reactPreset from '@bbob/preset-react/es';
+import reactRender from "@bbob/react/es/render";
+import revPreset from "./revPreset.js";
 import "./App.scss";
 
 export default class CreatePost extends Component {
   constructor(props) {
     super(props);
 
-    /*const placeholderText = `# Revaliir Prototype
-![Revaliir Welcome Banner](https://revaliir.net/media/uploads/2018/06/01/welcomenew1y.png)
-
->Be Daring
->[Home](https://revaliir.net/)
-## For the eventual conversion from bbcode to BBCode
-We originally used _bbcode_ styles like this to format our user's posts:
-\`\`\`
-[b][u]This is a bolded and underlined title[/b][/u]
-\`\`\`
-
-Now we will use **BBCode** styles like so:
-\`\`\`
-__**This is a bolded and underlined title**__
-\`\`\`
-###### They will run in fear...
-Provided the devs don't run first considering we need to:
-1. Implement all the buttons for this.
-2. Protect against \`\`\`XSS\`\`\` attacks.
-3. Implement backwards compatibility for bbcode so old posts still display correctly.
-`;*/
-    const placeholderText = `
-    [h1]Revaliir Prototype[/h1]
-    [img]https://revaliir.net/media/uploads/2018/06/01/welcomenew1y.png[/img]
-    [url=https://revaliir.net/]Home[/url]
+    const placeholderText = `[b]This is a test to try and [i]break[/i] this [b][/b][b]parser[/b][/b]
+    [size=16][size=14]If this works, the [size=26]parser[/size] is likely[/size] very robust.[/size]
+    [][/]
+    [color=red]R[color=green]G[color=blue]B[/color][/color][/color]
     `
 
     this.state = {
       BBCode: placeholderText,
-      generatedHTML: this.createHTML(placeholderText),
+      PreviewText: placeholderText,
       pastSelections: {}, //Only populate if a person has used the buttons to add in something.//
     };
   }
 
-  /* createHTML = BBCode => {
-    //let createdHTML = marked(BBCode);
-    let createdHTML = BBCode;
-    return { __html: createdHTML };
-  }; */
-
   handleTyping = BBCode => {
-    let createdHTML = this.createHTML(BBCode);
     this.setState(
       Object.assign({}, this.state, {
         BBCode: BBCode,
-        generatedHTML: createdHTML
+        PreviewText: BBCode
       })
     );
   };
@@ -64,7 +36,7 @@ Provided the devs don't run first considering we need to:
           text={this.state.BBCode}
           handleTyping={this.handleTyping}
         />
-        <Preview text={this.state.generatedHTML} />
+        <Preview text={this.state.PreviewText} />
       </div>
     );
   }
@@ -140,16 +112,14 @@ class BBCodeEditor extends Component {
 //Preview area for the resultant html that has been sanitized from the BBCode (This will eventually be hidden)
 class Preview extends Component {
   render() {
+    const parsedBBCode = reactRender(this.props.text, revPreset());
     return (
-      
-      <BBCode plugins={[reactPreset()]}>
-        {/*<div
-          id="preview"
-          className="previewArea row text-center"
-          dangerouslySetInnerHTML={this.props.text}
-        />*/}
-        {this.props.text}
-      </BBCode>
+      <div
+      id="preview"
+      className="previewArea row text-center"
+      >
+      {parsedBBCode}
+      </div>
     );
   }
 }
