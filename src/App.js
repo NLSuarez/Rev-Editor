@@ -1,30 +1,33 @@
 import React, { Component } from "react";
-import reactRender from "@bbob/react/es/render";
-import revPreset from "./revPreset.js";
+/*** Toast UI Editor Components***/
+import 'codemirror/lib/codemirror.css';
+import 'tui-editor/dist/tui-editor.min.css';
+import 'tui-editor/dist/tui-editor-contents.min.css';
+import 'highlight.js/styles/github.css';
+import 'tui-editor/dist/tui-editor-extColorSyntax.min.js';
+import 'tui-color-picker/dist/tui-color-picker.min.css';
+import Editor from 'tui-editor';
+
+
 import "./App.scss";
 
 export default class CreatePost extends Component {
   constructor(props) {
     super(props);
 
-    const placeholderText = `[b]This is a test to try and [i]break[/i] this [b][/b][b]parser[/b][/b]
-    [size=16][size=14]If this works, the [size=26]parser[/size] is likely[/size] very robust.[/size]
-    [][/]
-    [color=red]R[color=green]G[color=blue]B[/color][/color][/color]
+    const placeholderText = `# This is the markdown placeholder
     `
-
+    
     this.state = {
-      BBCode: placeholderText,
-      PreviewText: placeholderText,
-      pastSelections: {}, //Only populate if a person has used the buttons to add in something.//
+      markdown: placeholderText,
     };
   }
 
-  handleTyping = BBCode => {
+  handleTyping = markdown => {
+    console.log(markdown);
     this.setState(
       Object.assign({}, this.state, {
-        BBCode: BBCode,
-        PreviewText: BBCode
+        markdown: markdown,
       })
     );
   };
@@ -32,94 +35,46 @@ export default class CreatePost extends Component {
   render() {
     return (
       <div className="container">
-        <BBCodeEditor
-          text={this.state.BBCode}
+        <PostEditorArea
+          text={this.state.markdown}
           handleTyping={this.handleTyping}
         />
-        <Preview text={this.state.PreviewText} />
       </div>
     );
   }
 }
 
-class BBCodeEditor extends Component {
-  
-  constructor(props) {
-    super(props);
-    this.textBox = React.createRef();
+class PostEditorArea extends Component {
+
+  componentDidMount() {
+    let editor = new Editor({
+      el: this.editor,
+      initialEditType: 'markdown',
+      previewStyle: 'tab',
+      height: '300px',
+      events: {
+        change: this.handleTyping,
+      },
+      exts: ['colorSyntax'],
+      initialValue: this.props.text,
+    });
+    this.setState({
+      editor: editor
+    });
   }
 
   handleTyping = event => {
-    this.props.handleTyping(event.target.value);
+    this.props.handleTyping(this.editor.getMarkdown);
   };
-
-  handleToolbarClick = event => {
-    this.handleTagAddition(event.target.value);
-  }
-
-  handleTagAddition = tag => {
-    let startSelection = this.textBox.current.selectionStart;
-    let endSelection = this.textBox.current.selectionEnd;
-    let allText = this.props.text;
-    let selection = allText.substring(startSelection, endSelection);
-    let newText = "";
-    switch(tag){
-      //Note figure out how to undo these after they are added.
-      //Idea: Keep a state history of changes made via the buttons and undo them based upon metadata
-      case "B":
-        newText = allText.substring(0, startSelection) + "[b]" + selection + "[/b]" + allText.substring(endSelection, allText.length);
-        break;
-      case "I":
-        newText = allText.substring(0, startSelection) + "[i]" + selection + "[/i]" + allText.substring(endSelection, allText.length);
-        break;
-      case "U":
-        newText = allText.substring(0, startSelection) + "[u]" + selection + "[/u]" + allText.substring(endSelection, allText.length);
-        break;
-      case "S":
-        newText = allText.substring(0, startSelection) + "[s]" + selection + "[/s]" + allText.substring(endSelection, allText.length);
-        break;
-      case "SIZE":
-        newText = allText.substring(0, startSelection) + "[size=8]" + selection + "[/size]" + allText.substring(endSelection, allText.length);
-        break;
-      default:
-        break;
-    }
-    this.props.handleTyping(newText);    
-  }
 
   render() {
     return (
       <div className="row text-center">
-        <div>
-          <h1>Here will be the toolbar</h1>
-          <button onClick={this.handleToolbarClick} value="B">B</button>
-        </div>
-        <div className="writingArea">
-          <textarea
-            id="editor"
-            ref={this.textBox}
-            rows="5"
-            cols="100"
-            value={this.props.text}
-            onChange={this.handleTyping}
-          />
+        <div className="writingArea" ref={el => this.editor = el}>
         </div>
       </div>
     );
   }
 }
 
-//Preview area for the resultant html that has been sanitized from the BBCode (This will eventually be hidden)
-class Preview extends Component {
-  render() {
-    const parsedBBCode = reactRender(this.props.text, revPreset());
-    return (
-      <div
-      id="preview"
-      className="previewArea row text-center"
-      >
-      {parsedBBCode}
-      </div>
-    );
-  }
-}
+

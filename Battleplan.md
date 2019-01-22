@@ -1,16 +1,25 @@
 # Main Goal
-Create a basic text editor that allows users to type some sort of standard syntax that will then be parsed for a preview tab.
-## Sub goal: Decide what syntax
-Turns out neither bbcode nor markdown have really survived well enough for Rev's text editor to choose either or without any problems. I will have to extend them one way or another, which is bad news and good news at the same time. I may still be able to do markdown provided I can easily extend a piece of software.
-Best BBCode Parser that might be extensible:
-https://github.com/JiLiZART/bbob 
+
+Alter the ToastUI editor with my own extensions for Rev.
+
+## Library Notes
+
+Turns out neither bbcode nor markdown have really survived well enough for Rev's text editor to choose either or without any problems. That said, Markdown seems to be the closest to what we need, and I've found a nice editor that, with a little work, will be perfect for our needs. [Toast UI Editor](http://ui.toast.com/tui-editor/) will be sufficient for now, provided we follow a few caveats:
+
+1. Due to database space constraints, we won't allow image uploads, but we will allow image linking. It's difficult to turn this feature off in the editor pop-up window without cutting us off from future updates, but I can attempt to catch the change while it's being made and prevent it from happening or even just recreate the image plugin without that second option. Either way, any base-64 data codes we find will have to be stripped out and forwarded to a default static image instead.
+2. Mode switching has to be disabled. While it would be nice to keep mode-switching, it would strip out any custom html we might allow our users to have while switching. This is part of the editor's design for saftey. It will specifically become a problem when we add in the alignment buttons as described in step 3.
+3. The editor does not naturally support alignment, so we'll have to add in a custom extension to do so for us.
+
 Best markdown parser that is extensible:
-https://github.com/showdownjs/showdown
+[Showdown for frontend Markdown Parser](https://github.com/showdownjs/showdown)
 Both will have to be filtered server side of any html or harmful characters just in case.
-https://pypi.org/project/bbcode/
+[BBCode Parser for Python](https://pypi.org/project/bbcode/)
+[Mistune for Markdown Parser](https://github.com/lepture/mistune)
 
 ## Buttons for the Toolbar
+
 ### Mandatory
+
 1. Write
 2. Preview
 3. Header
@@ -26,20 +35,3 @@ https://pypi.org/project/bbcode/
 13. UL
 14. OL
 15. Align
-
-### Eventual
-1. Undo
-2. Redo
-
-##Functionality Plugins to Look For
-Color Wheel (Look at react-color)
-
-Notes on Parser For Frontend:
-- Things that work
-  - The basic tags (bold, italics, underline, strikethrough) work interchangeably and do not break.
-  - images
-- Things that don't work
-  - Size __Not working even with fix__ (consider markdown instead when you get a chance given that bbcode is not playing nice)
-  - Color __Fixed__
-  - Align
-  - Code
