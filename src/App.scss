@@ -4,8 +4,21 @@ textarea {
   max-height: 100%;
 }
 
-.writingArea, .previewArea {
-  margin-top: 10px;
+.writingArea {
+  margin-top: 30px;
   margin-left: 5px;
   margin-right: 5px;
+  text-align: left; //Override the centering of any parent element.
+}
+
+/***Toast UI Overrides***/
+.tui-popup-color .te-apply-button {
+  background: #4b96e6;
+  &:hover {
+    background: #4b96e6
+  }
+}
+
+.tui-colorpicker-palette-hex {
+  width: 80px;
 }
