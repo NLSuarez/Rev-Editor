@@ -1,9 +1,89 @@
+/**
+ * This was originally intended to be a markdown or bbcode editor and may yet be.
+ * However, recent experimentation has revealed that most frameworks/interpreters do
+ * not provide what we need out of the box. In the interest of time, we've taken the
+ * evil that we know and have implemented our previous editor in an iframe. In this way,
+ * we can use jquery with react. It's crude, but better than delaying rev 2.0 because
+ * we can't find anything appropriate that isn't a WYSIWYG editor editting pure html.
+ * 
+ * To use the bbcode stuff again, add the following dependencies.
+ *
+    npm i @bbob/core @bbob/html @bbob/preset-html5 @bbob/preset-react @bbob/react
+ */
+
 import React, { Component } from "react";
-import reactRender from "@bbob/react/es/render";
-import revPreset from "./revPreset.js";
+//import reactRender from "@bbob/react/es/render";
+//import revPreset from "./revPreset.js";
 import "./App.scss";
 
 export default class CreatePost extends Component {
+  constructor(props) {
+    super(props);
+
+    const placeholderText = `[b]This is a test to try and [i]break[/i] this [b][/b][b]parser[/b][/b]
+    [size=16][size=14]If this works, the [size=26]parser[/size] is likely[/size] very robust.[/size]
+    [][/]
+    [color=red]R[color=green]G[color=blue]B[/color][/color][/color]
+    `
+
+    this.state = {
+      BBCode: placeholderText,
+      PreviewText: placeholderText,
+    };
+  }
+
+  handleTyping = BBCode => {
+    this.setState(
+      Object.assign({}, this.state, {
+        BBCode: BBCode,
+        PreviewText: BBCode
+      })
+    );
+  };
+
+  render() {
+    return (
+      <div className="container">
+        <BBCodeEditor
+          text={this.state.BBCode}
+          handleTyping={this.handleTyping}
+        />
+      </div>
+    );
+  }
+}
+
+class BBCodeEditor extends Component {
+  
+  constructor(props) {
+    super(props);
+    this.textBox = React.createRef();
+  }
+
+  handleTyping = event => {
+    this.props.handleTyping(event.target.value);
+  };
+
+  render() {
+    return (
+      <div className="row text-center">
+        <div className="writingArea">
+          <textarea
+            id="editor"
+            ref={this.textBox}
+            rows="5"
+            cols="100"
+            value={this.props.text}
+            onChange={this.handleTyping}
+          />
+        </div>
+      </div>
+    );
+  }
+}
+
+
+/* export default class CreatePost extends Component {
   constructor(props) {
     super(props);
 
@@ -123,3 +203,4 @@ class Preview extends Component {
     );
   }
 }
+ */

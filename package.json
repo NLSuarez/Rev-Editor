@@ -1,18 +1,12 @@
 {
-  "name": "markdown-editor",
+  "name": "rev-editor",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@bbob/core": "^2.2.0",
-    "@bbob/html": "^2.2.0",
-    "@bbob/preset-html5": "^2.2.0",
-    "@bbob/preset-react": "^2.2.0",
-    "@bbob/react": "^2.3.0",
-    "marked": "^0.5.2",
     "node-sass": "^4.10.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
-    "react-scripts": "2.1.1"
+    "react-scripts": "3.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
